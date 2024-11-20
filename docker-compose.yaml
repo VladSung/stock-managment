@@ -1,0 +1,73 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq:rw
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data:rw
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  stock_service:
+    build:
+      context: ./services/stock-service
+      dockerfile: ./Dockerfile
+    image: shop-management/stock_service:latest
+    ports:
+      - '8080:8080'
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_HOST=db
+      - RABBITMQ_URL=amqp://rabbitmq
+
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  history_service:
+    build:
+      context: ./services/history-service
+      dockerfile: ./Dockerfile
+    image: shop-management/history_service:latest
+    ports:
+      - '8081:8081'
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_HOST=db
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
+  db_data:
