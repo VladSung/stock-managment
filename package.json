@@ -4,7 +4,7 @@
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",
     "dev": "docker-compose up",
-    "dev:stock": "docker-compose up stock_db rabbitmq stock_service",
-    "dev:history": "docker-compose up database rabbitmq history_service"
+    "dev:stock": "docker-compose up db rabbitmq stock_service",
+    "dev:history": "docker-compose up db rabbitmq history_service"
   }
 }
