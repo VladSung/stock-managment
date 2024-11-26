@@ -1,10 +1,11 @@
 {
   "scripts": {
-    "docker:up": "docker-compose up ",
+    "docker:up": "docker-compose up",
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",
     "dev": "docker-compose up",
     "dev:stock": "docker-compose up db rabbitmq stock_service",
-    "dev:history": "docker-compose up db rabbitmq history_service"
+    "dev:history": "docker-compose up db rabbitmq history_service",
+    "setup-env": "./setup-env.sh"
   }
 }
